@@ -57,7 +57,7 @@ canBothVote'' :: Age -> Age -> Reader Country Bool
 canBothVote'' age1 age2 =
     constant (&&) `apply` canVote age1 `apply` canVote age2
 
-
+-- runReader Brazil $ constant (&&) `apply` canVote 18 `apply` canVote 19
 
 -- instances
 instance Functor (Reader env) where
@@ -67,7 +67,12 @@ instance Applicative (Reader env) where
     pure = constant
     (<*>) = apply
 
+instance Functor (Reader env) where
+    fmap = readerMap
 
+instance Applicative (Reader env) where
+    pure = constant
+    (<*>) = apply
 
 people :: Reader Country [Age]
 people = Reader $ \country ->
@@ -87,4 +92,4 @@ readerBind :: Reader env a -> (a -> Reader env b) -> Reader env b
 readerBind (Reader f) g = Reader $ \env -> runReader env (g (f env))
 
 numberOfVoters' :: Reader Country Int
-numberOfVoters' = undefined
+numberOfVoters' = readerBind people $ \ppl -> 

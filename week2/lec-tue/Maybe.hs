@@ -6,8 +6,8 @@ votingAge :: Age -> Bool
 votingAge age = age >= 18
 
 canVote :: Maybe Age -> Maybe Bool
-canVote Nothing = Nothing
-canVote (Just age) = Just (votingAge age)
+canVote Nothing = Nothing -- No data -> No Answer
+canVote (Just age) = Just (votingAge age) -- Data -> Answer
 
 sameAge :: Maybe Age -> Maybe Age -> Maybe Bool
 sameAge Nothing _ = Nothing
@@ -24,14 +24,15 @@ isTriple _ _ Nothing = Nothing
 isTriple (Just age1) (Just age2) (Just age3) =
     Just (ordered age1 age2 age3)
 
+-- Problem: Function of n arguments, we need n+1 cases of Nothing in function. That is annoying
 
-
+-- maybe: List that has either zero or one element. Applying the function for every element of the Maybe
 maybeMap :: (a -> b) -> Maybe a -> Maybe b
 maybeMap f Nothing = Nothing
 maybeMap f (Just x) = Just (f x)
 
 canVote' :: Maybe Age -> Maybe Bool
-canVote' x = maybeMap votingAge x
+canVote' x = maybeMap votingAge x 
 
 maybeMap2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
 maybeMap2 f Nothing _ = Nothing
@@ -51,12 +52,14 @@ isTriple' :: Maybe Age -> Maybe Age -> Maybe Age -> Maybe Bool
 isTriple' x y z = maybeMap3 ordered x y z
 
 
-
+-- Helper function
+        -- Maybe function, Maybe arg, Maybe result
 apply :: Maybe (a -> b) -> Maybe a -> Maybe b
 apply Nothing _ = Nothing
 apply _ Nothing = Nothing
 apply (Just f) (Just x) = Just (f x)
 
+-- pack it up in a Just
 canVote'' :: Maybe Age -> Maybe Bool
 canVote'' x = Just votingAge `apply` x
 
@@ -71,7 +74,10 @@ isTriple'' x y z = Just ordered `apply` x `apply` y `apply` z
 -- instances
 {-
 instance Functor Maybe where
-    fmap = mapMaybe
+    fmap = mayMaybe
+
+    fmap f x = Just f `apply`x
+-}
 
     fmap f x = Just f `apply` x
 
@@ -89,24 +95,27 @@ people "Bart" = Just 10
 people "Lisa" = Just 8
 people _ = Nothing
 
+
+
 personCanVote :: Maybe Name -> Maybe Bool
 personCanVote Nothing = Nothing
 personCanVote (Just name) = canVote (people name)
 
-
+-- Problem: We have a Maybe name but we want to work with the name
 
 maybeBind :: Maybe a -> (a -> Maybe b) -> Maybe b
-maybeBind Nothing _ = Nothing
+maybeBind Nothing _ = Nothing 
 maybeBind (Just x) f = f x
+--maybeBind (Just "Homer") people
 
 personCanVote' :: Maybe Name -> Maybe Bool
-personCanVote' x =
+personCanVote' x = 
     maybeBind x $ \name -> canVote (people name)
-
-
+--personCanVote' (Just "Homer")
 
 -- instance
 {-
 instance Monad Maybe where
     (>>=) = maybeBind
 -}
+-- Just "Homer" >>= \name -> canVote (people name)

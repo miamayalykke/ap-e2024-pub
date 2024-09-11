@@ -1,6 +1,7 @@
 data Maybe a = Nothing | Just a
 
 class Functor f where
+    -- f has kind * -> *
     fmap :: (a -> b) -> f a -> f b
 
 {-
@@ -16,6 +17,7 @@ class Functor f => Applicative f where
     pure :: a -> f a
     (<*>) :: f (a -> b) -> f a -> f b
     -- <*> is left-associative
+    --ordered <$> Just 1 <*> Just 2 <*> Just 3 -> Just True    
 
 {-
 Applicative laws:
@@ -26,7 +28,7 @@ Applicative laws:
  -}
 
 class Applicative m => Monad m where
-    (>>=) :: m a -> (a -> m b) -> m b
+    (>>=) :: m a -> (a -> m b) -> m b -- >>= means bind
     -- >>= is left-associative
 
 {-
