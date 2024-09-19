@@ -32,3 +32,21 @@ tests =
   testGroup
     "Parsing"
     []
+
+parserTests :: TestTree
+parserTests =
+  testGroup
+    "Parsing"
+    [ testGroup
+        "Constants"
+        [ parserTest "123" $ CstInt 123,
+          parserTest " 123" $ CstInt 123,
+          parserTest "123 " $ CstInt 123,
+          parserTestFail "123xyz",
+          parserTest "true" $ CstBool True,
+          parserTest "true e" $ CstBool True,
+          parserTest "false" $ CstBool False,
+          parserTestFail "trueee"
+
+        ]
+    ]
