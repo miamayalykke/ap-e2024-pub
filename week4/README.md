@@ -1,7 +1,5 @@
 # Week 4 - Free Monads
 
-## Slides and Material
-
 ## Suggested Reading
 
 * [Course Notes Chapter 4](https://diku-dk.github.io/ap-notes/chapter_4.html)
@@ -33,9 +31,8 @@ solutions are also included inline below.
 
 ### Handout Structure
 
-The handout has the following structure. This will be a very similar
-structure as A3 (these exercises will form the starting basis of A3),
-so pay attention!
+The handout has the following structure. These exercises will form the starting
+basis of A4, so pay attention!
 
 ```
 handout
@@ -530,7 +527,7 @@ interpreters of course! So far, we've only worked on the pure interpreter
 
 ```
 > m =  eval $ Let "x" (Add (CstInt 1) (CstInt 2)) $ Print ("The value of x is") (Var "x")
-> runEval envEmpty stateInitial m
+> runEval m
 (["The value of x is: 3"], Right (ValInt 3))
 ```
 
