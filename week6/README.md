@@ -473,7 +473,7 @@ signature:
 
 ```Haskell
 -- | Query the job status.
-jobStatus :: SPC -> JobId -> IO JobStatus
+jobStatus :: SPC -> JobId -> IO (Maybe JobStatus)
 ```
 
 ### Hints
@@ -706,8 +706,18 @@ handleMsg c = do
 
 jobWait :: SPC -> JobId -> IO (Maybe JobDoneReason)
 jobWait (SPC c) jobid =
-  requestReply c $ MsgJobWait jobid reply_chan
+  requestReply c $ MsgJobWait jobid
 
+startSPC :: IO SPC
+startSPC = do
+  let initialState c =
+        SPCState
+         { ...
+         , spcChan = c
+         , spcJobRunning = Nothing
+         }
+  server <- spawn $ \c -> runSPCM (initialState c) $ forever $ handleMsg c
+  pure $ SPC server
 ```
 
 </details>
@@ -807,6 +817,7 @@ jobDone jobid reason = do
         state
           { spcWaiting = not_waiting_for_job,
             spcJobsDone = (jobid, reason) : spcJobsDone state,
+            spcJobRunning = Nothing,
             spcJobsPending = removeAssoc jobid $ spcJobsPending state
           }
 
@@ -1018,7 +1029,6 @@ checkTimeouts = do
     Just (jobid, deadline, tid)
       | now >= deadline -> do
           io $ killThread tid
-          put $ state {spcJobRunning = Nothing}
           jobDone jobid DoneTimeout
     _ -> pure ()
 
